@@ -5,6 +5,7 @@ from django.views import static
 from views import todo
 
 urlpatterns = [
+    url('^$', todo.show),
     url(r'^todo/?$', todo.show),
     url(r'^todo/(?P<status>\d+)', todo.show, name='show'),
     url(r'^todo/add/?$', todo.add, name='add'),
