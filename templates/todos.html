@@ -1,0 +1,118 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>todos</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/app.css">
+    <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon">
+    <link rel="mask-icon" href="../static/favicon.svg" color="#4A90E2">
+    <meta name="viewport" content="width:device-width,initial-scale=1.0,user-scalable=no">
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <h1>Django Todo Demo</h1>
+    </div>
+    <form action="/todo/add" method="post">
+        <div class="input-group">
+            <input id="todo-content" class="form-control input-lg" type="text" name="content" placeholder="新建一个待办事项……"/>
+            <span class="input-group-btn">
+                <button class="btn btn-success btn-lg" type="button" onclick=submit()><span
+                        class="glyphicon glyphicon-chevron-right"></span></button>
+              </span>
+        </div>
+    </form>
+    <div class="btn-group todo-category-switch">
+        <a class="btn btn-default{% if status == 0 %} active{% endif %}" href="{% url 'show' 0 %}">未完成</a>
+        <a class="btn btn-default{% if status == 1 %} active{% endif %}" href="{% url 'show' 1 %}">已完成</a>
+    </div>
+    {% if not todos %}
+    {% if status == 0 %}
+    <div class="list-empty">
+      <p class="text-center large-emoji">🎉</p>
+      <p class="text-center lead">All Done!</p>
+      <p class="text-center"><a class="text-muted" href="{% url 'show' 1 %}">查看已完成的 todo</a> 或者 <a class="text-muted" href="#" onclick=document.getElementById('todo-content').focus()>创建一个新的 todo</a></p>
+    </div>
+    {% elif status == 1 %}
+    <div class="list-empty">
+      <p class="text-center large-emoji">🤔</p>
+      <p class="text-center lead">Wow. Nothing's Done Here.</p>
+      <p class="text-center"><a class="text-muted" href="{% url 'show' 0 %}">去看看未完成的 todo</a></p>
+    </div>
+    {% endif %}
+    {% else %}
+    {% if status == 0 %}
+    <ul class="list-group">
+      {% for todo in todos %}
+        <li class="list-group-item">
+          <form class="pull-right" action="{% url 'delete' todo.id 0 %}" method="post" id=delete-{{todo.id}}>
+            <span class="glyphicon glyphicon-trash todo-delete"></span>
+          </form>
+          <form action="{% url 'done' todo.id 0 %}" method="post" id="done-{{todo.id}}">
+            <span class="glyphicon glyphicon-unchecked"></span> {{ todo.content }}
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+    {% elif status == 1 %}
+    <ul class="list-group">
+      {% for todo in todos %}
+        <li class="list-group-item">
+          <form class="pull-right" action="{% url 'delete' todo.id 1 %}" method="post" id=delete-{{todo.id}}>
+            <span class="glyphicon glyphicon-trash todo-delete"></span>
+          </form>
+          <form action="{% url 'undone' todo.id 1 %}" method="post" id="undone-{{todo.id}}">
+            <span class="glyphicon glyphicon-check text-muted"></span> <del class="text-muted">{{ todo.content }}</del>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+        <p class="text-muted"><span class="glyphicon glyphicon-info-sign"></span> {% if todos|length == 1 %}只剩下最后{% else %}共{% endif %} {{ todos|length }} 个 todo。</p>
+    {% endif %}
+<footer class="page-footer">
+    <hr>
+    <p class="text-muted"> By <a href="https://tsingxu430.github.io/blog/">Tsingxu</a></p>
+</footer>
+</div>
+<script type="text/javascript" src="../static/js/jquery.slim.min.js"></script>
+<script type="text/javascript" src="../static/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+    $.ready = function() {
+      $('#todo-content').focus();
+
+      let doneBtns = $('.glyphicon-unchecked');
+      let undoBtns = $('.glyphicon-check');
+      let deleteBtns = $('.glyphicon-trash')
+
+      let toggleStatus = function (el) {
+        el.classList.toggle('glyphicon-check');
+        el.classList.toggle('glyphicon-unchecked');
+      }
+      let submitParentForm = function(el) {
+        el.parentNode.submit()
+      }
+
+      for (let i = doneBtns.length - 1; i >= 0; i--) {
+        doneBtns[i].onclick = function() {
+          toggleStatus(this);
+          submitParentForm(this);
+        }
+      }
+
+      for (let i = undoBtns.length - 1; i >= 0; i--) {
+        undoBtns[i].onclick = function() {
+          toggleStatus(this);
+          submitParentForm(this);
+        }
+      }
+
+      for (let i = deleteBtns.length - 1; i >= 0; i--) {
+        deleteBtns[i].onclick = function() {
+          submitParentForm(this);
+        }
+      }
+    }
+</script>
+</body>
+</html>
