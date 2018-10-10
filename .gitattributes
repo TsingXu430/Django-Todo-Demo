@@ -1,1 +1,3 @@
-*.python linguist-language=python
+*.js linguist-language=python
+*.cdd linguist-language=python
+*.html linguist-language=python
